@@ -84,6 +84,9 @@ app.get("/tasks/:id", (req, res) => {
       res.send(task);
     })
     .catch((e) => {
+      if (e.name == "CastError") {
+        return res.status(404).send();
+      }
       res.status(500).send(e);
     });
 });
