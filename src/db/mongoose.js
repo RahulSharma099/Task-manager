@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
+      useFindAndModify: false,
     });
   } catch (error) {
     console.error("ERROR! ", error);
