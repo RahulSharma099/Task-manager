@@ -40,15 +40,15 @@ const userSchema = new mongoose.Schema({
         throw new Error("Age must be a positive number");
       }
     },
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 userSchema.methods.generateAuthToken = async function () {
@@ -57,7 +57,7 @@ userSchema.methods.generateAuthToken = async function () {
   console.log(user._id.toString());
   console.log(token);
   //  console.log(user.tokens);
-  user.tokens = user.tokens.append({ token: token });
+  user.tokens = await user.tokens.concat({ token });
   console.log(user.tokens);
   await user.save();
   return token;
