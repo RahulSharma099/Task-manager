@@ -7,6 +7,20 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 3000;
 
+// app.use((req, res, next) => {
+//   if (req.method === "GET") {
+//     res.send("GET REQUESTS ARE DISABLED");
+//   } else {
+//     next();
+//   }
+// });
+
+// app.use((req, res, next) => {
+//   if (req.method) {
+//     res.status(503).send("SITE UNDER MAINTENANCE");
+//   }
+// });
+
 app.use(express.json());
 app.use(userRouter);
 app.use(taskRouter);
