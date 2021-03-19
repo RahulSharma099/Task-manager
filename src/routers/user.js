@@ -2,6 +2,8 @@ const express = require("express");
 const router = new express.Router();
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const multer = require("multer");
+const { Error } = require("mongoose");
 
 router.post("/users", async (req, res) => {
   const user = new User(req.body);
@@ -47,6 +49,58 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     res.send();
   } catch (e) {
     res.status(500).send();
+  }
+});
+
+const upload = multer({
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(error, file, cb) {
+    if (!file.originalname.match(/.*\.(gif|jpe?g|bmp|png)$/gim)) {
+      return cb(new Error("Please upload a Image 🤷‍♀️"));
+    }
+
+    cb(undefined, true);
+  },
+});
+
+router.post(
+  "/users/me/avatar",
+  auth,
+  upload.single("avatar"),
+  async (req, res) => {
+    req.user.avatar = await req.file.buffer;
+    await req.user.save();
+    res.status(200).send("Successfully uploaded avatar 👱‍♂️!!!");
+  },
+  (error, req, res, next) => {
+    res.status(400).send({
+      error: error.message,
+    });
+  }
+);
+
+router.delete("/users/me/avatar", auth, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.status(200).send("Successfully deleted avatar 👨‍🦽");
+});
+
+router.get("/users/:id/avatar", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user || !user.avatar) {
+      throw new Error("User don't have his avatar images 🍧");
+    }
+
+    res.set("Content-Type", "image/jpg");
+    res.send(user.avatar);
+  } catch (error) {
+    res.status(404).send({
+      error: error.message,
+    });
   }
 });
 
