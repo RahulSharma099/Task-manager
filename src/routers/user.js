@@ -3,6 +3,7 @@ const router = new express.Router();
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const multer = require("multer");
+const sharp = require("sharp");
 const { Error } = require("mongoose");
 
 router.post("/users", async (req, res) => {
@@ -70,7 +71,12 @@ router.post(
   auth,
   upload.single("avatar"),
   async (req, res) => {
-    req.user.avatar = await req.file.buffer;
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+
+    req.user.avatar = buffer;
     await req.user.save();
     res.status(200).send("Successfully uploaded avatar 👱‍♂️!!!");
   },
@@ -95,7 +101,7 @@ router.get("/users/:id/avatar", async (req, res) => {
       throw new Error("User don't have his avatar images 🍧");
     }
 
-    res.set("Content-Type", "image/jpg");
+    res.set("Content-Type", "image/png");
     res.send(user.avatar);
   } catch (error) {
     res.status(404).send({
